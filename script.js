@@ -10,7 +10,7 @@ const menuButtons = document.querySelectorAll('.menu-btn');
 canvas.width = 600;
 canvas.height = 700;
 
-// Initialize Background Music Object Instance
+// Initialize Background Music Object Instance safely
 const bgMusic = new Audio('music.mp3');
 bgMusic.loop = true;      
 bgMusic.volume = 0.35;    
@@ -92,12 +92,17 @@ class Laser {
     }
 }
 
+// Attach listeners manually to bypass dataset extraction conflicts
 menuButtons.forEach(button => {
     button.addEventListener('click', () => {
-        selectedDifficulty = button.getAttribute('data-diff');
-        startScreen.style.display = 'none'; // Instantly dismiss menu graphic layout layer
+        const diffAttr = button.getAttribute('data-diff');
+        selectedDifficulty = diffAttr ? diffAttr : 'easy';
+        
+        // Hide the menu using inline styles to completely bypass external CSS errors
+        if (startScreen) startScreen.style.setProperty('display', 'none', 'important');
+        
         bgMusic.currentTime = 0; 
-        bgMusic.play().catch(err => console.log("Audio playback blocked:", err));
+        bgMusic.play().catch(err => console.log("Audio playback waiting for user context:", err));
         resetGame();
     });
 });
@@ -149,10 +154,10 @@ function drawScore() {
 
 function endGame() { 
     gameActive = false; 
-    finalScoreElement.innerText = score; 
+    if (finalScoreElement) finalScoreElement.innerText = score; 
     bgMusic.pause();
     saveAndShowLeaderboard();
-    gameOverScreen.style.display = 'flex'; // Unveil full flex modal presentation structure
+    if (gameOverScreen) gameOverScreen.style.setProperty('display', 'flex', 'important'); 
 }
 
 function saveAndShowLeaderboard() {
@@ -167,22 +172,23 @@ function saveAndShowLeaderboard() {
     localScores = localScores.slice(0, 5);
     localStorage.setItem('ztype_high_scores', JSON.stringify(localScores));
     
-    scoreListElement.innerHTML = '';
-    localScores.forEach((run, index) => {
-        const li = document.createElement('li');
-        li.className = 'score-item';
-        li.style.display = 'flex';
-        li.style.justifyContent = 'space-between';
-        li.style.margin = '5px 0';
-        li.innerHTML = `
-            <div>
-                <span class="score-rank" style="color: #00ffcc; margin-right: 10px;">#${index + 1}</span> 
-                <span>${run.value}</span>
-            </div>
-            <span class="score-diff" style="color: #ff3366;">(${run.difficulty})</span>
-        `;
-        scoreListElement.appendChild(li);
-    });
+    if (scoreListElement) {
+        scoreListElement.innerHTML = '';
+        localScores.forEach((run, index) => {
+            const li = document.createElement('li');
+            li.style.display = 'flex';
+            li.style.justifyContent = 'space-between';
+            li.style.margin = '5px 0';
+            li.innerHTML = `
+                <div>
+                    <span style="color: #00ffcc; margin-right: 10px;">#${index + 1}</span> 
+                    <span>${run.value}</span>
+                </div>
+                <span style="color: #ff3366;">(${run.difficulty})</span>
+            `;
+            scoreListElement.appendChild(li);
+        });
+    }
 }
 
 function resetGame() {
@@ -195,19 +201,21 @@ function resetGame() {
     lasers = []; 
     targetWord = null; 
     gameActive = true;
-    gameOverScreen.style.display = 'none'; 
+    if (gameOverScreen) gameOverScreen.style.setProperty('display', 'none', 'important'); 
     
-    // Normalize performance clock initialization to line up loop timestamps perfectly
+    // Smooth frame timeline initialization
     requestAnimationFrame((timestamp) => {
         lastSpawnTime = timestamp;
         gameLoop(timestamp);
     });
 }
 
-restartBtn.addEventListener('click', () => { 
-    gameOverScreen.style.display = 'none'; 
-    startScreen.style.display = 'flex'; 
-});
+if (restartBtn) {
+    restartBtn.addEventListener('click', () => { 
+        if (gameOverScreen) gameOverScreen.style.setProperty('display', 'none', 'important'); 
+        if (startScreen) startScreen.style.setProperty('display', 'flex', 'important'); 
+    });
+}
 
 function gameLoop(currentTime) {
     if (!gameActive) return;
