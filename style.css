@@ -96,3 +96,52 @@ button[data-diff="hard"]:hover { border-color: #f38ba8; background-color: #f38ba
 
 #restart-btn { border-color: #00ffcc; color: #00ffcc; }
 #restart-btn:hover { background-color: #00ffcc; color: #070810; box-shadow: 0 0 15px #00ffcc; }
+
+/* Leaderboard Styling */
+.leaderboard-box {
+    margin-top: 15px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(51, 153, 255, 0.3);
+    border-radius: 6px;
+    padding: 15px;
+    width: 250px;
+    text-align: left;
+}
+
+.leaderboard-box h3 {
+    color: #3399ff;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.score-list {
+    list-style: none;
+    font-size: 0.95rem;
+    color: #cdd6f4;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.score-item:last-child {
+    border-bottom: none;
+}
+
+.score-rank {
+    color: #ff3366;
+    font-weight: bold;
+}
+
+.score-diff {
+    color: #888dd3;
+    font-size: 0.8rem;
+}
+
