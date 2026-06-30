@@ -1,53 +1,43 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 const finalScoreElement = document.getElementById('final-score');
 const restartBtn = document.getElementById('restart-btn');
-const menuButtons = document.querySelectorAll('.menu-btn');
 
+// Adjust size to typical desktop resolution aspect ratio
 canvas.width = 600;
 canvas.height = 700;
 
-// Game Tracking Profiles
-let selectedDifficulty = 'easy';
+// Game State Values
 let score = 0;
-let baseSpeed = 0.4;
-let wordSpawnInterval = 3500;
-let speedIncrement = 0.01;
+let baseSpeed = 1.0;
+let wordSpawnInterval = 2000; // ms
 let lastSpawnTime = 0;
-let gameActive = false; // Game stays paused until a button triggers it
+let gameActive = true;
 
+// Entities
 let fallingWords = [];
 let lasers = [];
-let targetWord = null;
+let targetWord = null; // Lock-on word when player starts typing
 
-// Categorized Word Engine Bank
-const dictionary = {
-    easy: ["cat", "dog", "run", "sky", "blue", "ship", "laser", "star", "fire", "moon", "orbit"],
-    medium: ["galaxy", "nebula", "meteor", "rocket", "quantum", "gravity", "vector", "matrix", "arcade"],
-    hard: ["syntactical", "atmospheric", "gravitational", "astrophysics", "exoplanetary", "supernova"]
-};
+// Word database dictionary
+const wordBank = [
+    "laser", "galaxy", "nebula", "meteor", "rocket", "quantum", "gravity", "orbit", 
+    "vector", "matrix", "arcade", "engine", "syntax", "hazard", "shield", "plasma",
+    "cosmic", "photon", "pulsar", "quasar", "stellar", "vacuum", "vortex", "cyber"
+];
 
-// Difficulty Configurations
-const difficultySettings = {
-    easy: { startSpeed: 0.4, spawnRate: 3500, scaling: 0.01 },
-    medium: { startSpeed: 0.8, spawnRate: 2200, scaling: 0.03 },
-    hard: { startSpeed: 1.3, spawnRate: 1400, scaling: 0.06 }
-};
-
+// Laser Cannon position (Centered at bottom)
 const shipX = canvas.width / 2;
 const shipY = canvas.height - 40;
 
 class FallingWord {
     constructor() {
-        // Pull text exclusively from current mode profile dictionary
-        const pool = dictionary[selectedDifficulty];
-        this.text = pool[Math.floor(Math.random() * pool.length)];
+        this.text = wordBank[Math.floor(Math.random() * wordBank.length)];
         this.x = Math.max(50, Math.random() * (canvas.width - 150));
         this.y = -20;
-        this.speed = baseSpeed + Math.random() * 0.2;
-        this.typedIndex = 0;
+        this.speed = baseSpeed + Math.random() * 0.5;
+        this.typedIndex = 0; // Tracks typed character accuracy
     }
 
     update() {
@@ -59,9 +49,12 @@ class FallingWord {
 
     draw() {
         ctx.font = "20px 'Courier New'";
+        
+        // Draw untyped block of text
         ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
         ctx.fillText(this.text, this.x, this.y);
 
+        // Highlight typed characters in neon green
         if (this.typedIndex > 0) {
             ctx.fillStyle = "#00ffcc";
             const typedText = this.text.substring(0, this.typedIndex);
@@ -76,7 +69,7 @@ class Laser {
         this.y = startY;
         this.targetX = targetX;
         this.targetY = targetY;
-        this.life = 5;
+        this.life = 5; // Frames to stay visible
     }
 
     draw() {
@@ -90,27 +83,24 @@ class Laser {
             ctx.lineTo(this.targetX, this.targetY);
             ctx.stroke();
             ctx.closePath();
+            
+            // Clear canvas shadow side effects
             ctx.shadowBlur = 0;
             this.life--;
         }
     }
 }
 
-// Bind Difficulty Button Selection Event Listeners
-menuButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        selectedDifficulty = button.getAttribute('data-diff');
-        startScreen.classList.add('hidden');
-        resetGame();
-    });
-});
-
+// Intercept Global Keyboard inputs
 window.addEventListener('keydown', (e) => {
     if (!gameActive) return;
     const pressedKey = e.key.toLowerCase();
+    
+    // Ignore function or modifier control keys
     if (pressedKey.length > 1) return;
 
     if (targetWord === null) {
+        // Look for any word starting with the input key
         for (let word of fallingWords) {
             if (word.text[0] === pressedKey) {
                 targetWord = word;
@@ -121,6 +111,7 @@ window.addEventListener('keydown', (e) => {
             }
         }
     } else {
+        // Lock-on active: User must progress down current focused word string
         const expectedKey = targetWord.text[targetWord.typedIndex].toLowerCase();
         if (pressedKey === expectedKey) {
             targetWord.typedIndex++;
@@ -136,12 +127,16 @@ function fireLaser(tx, ty) {
 
 function checkWordCompletion() {
     if (targetWord && targetWord.typedIndex >= targetWord.text.length) {
+        // Flash elimination score increments
         score += targetWord.text.length * 10;
+        
+        // Remove word from processing tree
         fallingWords = fallingWords.filter(w => w !== targetWord);
         targetWord = null;
 
-        // Apply chosen configuration profile multiplier tracking variables
-        baseSpeed += speedIncrement;
+        // Progressively scale difficulty based on score metrics
+        baseSpeed += 0.05;
+        wordSpawnInterval = Math.max(800, wordSpawnInterval - 50);
     }
 }
 
@@ -158,7 +153,7 @@ function drawShip() {
 function drawScore() {
     ctx.fillStyle = "#ffffff";
     ctx.font = "16px 'Courier New'";
-    ctx.fillText(`SCORE: ${score} (${selectedDifficulty.toUpperCase()})`, 20, 30);
+    ctx.fillText(`SCORE: ${score}`, 20, 30);
 }
 
 function endGame() {
@@ -168,13 +163,9 @@ function endGame() {
 }
 
 function resetGame() {
-    // Map initial speeds directly using structural dictionary selectors
-    const config = difficultySettings[selectedDifficulty];
-    baseSpeed = config.startSpeed;
-    wordSpawnInterval = config.spawnRate;
-    speedIncrement = config.scaling;
-
     score = 0;
+    baseSpeed = 1.0;
+    wordSpawnInterval = 2000;
     fallingWords = [];
     lasers = [];
     targetWord = null;
@@ -184,25 +175,23 @@ function resetGame() {
     requestAnimationFrame(gameLoop);
 }
 
-// Route back to selection page instead of immediate restart loops
-restartBtn.addEventListener('click', () => {
-    gameOverScreen.classList.add('hidden');
-    startScreen.classList.remove('hidden');
-});
-
+// Master Render/Physics Engine Loop
 function gameLoop(currentTime) {
     if (!gameActive) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Timing tracking for new generation waves
     if (currentTime - lastSpawnTime > wordSpawnInterval) {
         fallingWords.push(new FallingWord());
         lastSpawnTime = currentTime;
     }
 
+    // Render & Move Laser tracks
     lasers = lasers.filter(laser => laser.life > 0);
     lasers.forEach(laser => laser.draw());
 
+    // Update word structures
     fallingWords.forEach(word => {
         word.update();
         word.draw();
@@ -213,3 +202,8 @@ function gameLoop(currentTime) {
 
     requestAnimationFrame(gameLoop);
 }
+
+restartBtn.addEventListener('click', resetGame);
+
+// Bootstrap Game
+resetGame();
