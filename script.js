@@ -27,10 +27,25 @@ let lasers = [];
 let targetWord = null;
 
 const dictionary = {
-    easy: ["cat", "dog", "run", "sky", "blue", "ship", "laser", "star", "fire", "moon", "orbit"],
-    medium: ["galaxy", "nebula", "meteor", "rocket", "quantum", "gravity", "vector", "matrix", "arcade"],
-    hard: ["syntactical", "atmospheric", "gravitational", "astrophysics", "exoplanetary", "supernova"]
+    easy: [
+        "cat", "dog", "run", "sky", "blue", "ship", "laser", "star", "fire", "moon", "orbit",
+        "game", "code", "space", "blast", "speed", "fast", "type", "keys", "text", "planet",
+        "alien", "solar", "comet", "beam", "glow", "neon", "jump", "wave", "time", "score",
+        "play", "word", "hand", "mind", "epic", "zone", "void", "core", "grid", "rank", "apex"
+    ],
+    medium: [
+        "galaxy", "nebula", "meteor", "rocket", "quantum", "gravity", "vector", "matrix", "arcade",
+        "computer", "keyboard", "software", "internet", "database", "variable", "function", "universe",
+        "asteroid", "satellite", "astronaut", "telescope", "blackhole", "shuttle", "thruster", "velocity",
+        "accuracy", "terminal", "protocol", "compiler", "hardware", "pixel", "graphics", "engine"
+    ],
+    hard: [
+        "syntactical", "atmospheric", "gravitational", "astrophysics", "exoplanetary", "supernova",
+        "constellation", "interstellar", "cryptography", "cybersecurity", "development", "programming",
+        "synchronous", "asynchronous", "optimization", "architecture", "juxtaposition", "stratosphere"
+    ]
 };
+
 
 const difficultySettings = {
     easy: { startSpeed: 0.4, spawnRate: 3500, scaling: 0.01 },
