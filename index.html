@@ -7,30 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div id="game-container">
-        <!-- Start Screen / Difficulty Menu -->
-        <div id="start-screen">
-            <h1>Z-TYPE</h1>
-            <p>Select Difficulty to Start</p>
-            <div class="menu-buttons">
-                <button class="menu-btn" data-diff="easy">EASY</button>
-                <button class="menu-btn" data-diff="medium">MEDIUM</button>
-                <button class="menu-btn" data-diff="hard">HARD</button>
-            </div>
+        <!-- Canvas for Game World Rendering -->
+        <canvas id="gameCanvas" width="600" height="800"></canvas>
+
+        <!-- Centered UI Difficulty Menu Overlay -->
+        <div id="menu-overlay">
+            <h2 class="menu-title">Select Difficulty to Start</h2>
+            <button class="menu-btn" id="easy-btn">EASY</button>
+            <button class="menu-btn" id="medium-btn">MEDIUM</button>
+            <button class="menu-btn" id="hard-btn">HARD</button>
         </div>
-
-        <canvas id="gameCanvas"></canvas>
-        
-        <div id="game-over-screen" class="hidden">
-    <h1>GAME OVER</h1>
-    <p>Your Score: <span id="final-score">0</span></p>
-    
-    <!-- LEADERBOARD CONTAINER -->
-    <div class="leaderboard-box">
-        <h3>Local High Scores</h3>
-        <ol id="score-list" class="score-list"></ol>
     </div>
-    
-    <button id="restart-btn">Play Again</button>
-</div>
 
+    <script src="game.js"></script>
+</body>
+</html>
